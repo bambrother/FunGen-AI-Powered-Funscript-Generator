@@ -51,6 +51,7 @@ class AppState:
         self.live_preview_mode: bool = False
         self.reference_script: string = None
         self.max_preview_fps = 60
+        self.debug_mode: Literal["funscript", "detection"] = "funscript"
 
         # Gui/settings Funscript Tweaking Variables
         self.boost_enabled: bool = True

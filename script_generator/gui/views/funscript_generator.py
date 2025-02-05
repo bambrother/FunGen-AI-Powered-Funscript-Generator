@@ -205,10 +205,22 @@ class FunscriptGeneratorPage(tk.Frame):
             state=state,
             attr="max_preview_fps",
             row=1,
-            column=29,
+            column=28,
             label_width_px=45,
             entry_width_px=10,
             tooltip_text="The maximum FPS for the debug video"
+        )
+        _, _, debug_mode_dropdown, _ = Widgets.dropdown(
+            attr="debug_mode",
+            parent=general,
+            label_text="mode",
+            options=["funscript", "detection"],
+            default_value=state.debug_mode,
+            tooltip_text="Change the debug metrics\nfunscript: Script overlay and funscript metrics\ndetection: Shows object detection boxes, confidence score and tracking id",
+            state=state,
+            label_width_px=45,
+            row=1,
+            column=29
         )
         play_btn = Widgets.button(
             general,
@@ -266,16 +278,16 @@ class FunscriptGeneratorPage(tk.Frame):
                 processing_btn.config(text="Start processing")
 
             if state.has_raw_yolo and state.has_tracking_data:
-                enable_widgets([play_btn, regenerate_btn, gen_video_btn, max_fps_e, gen_report_btn, gen_heatmap_btn])
+                enable_widgets([play_btn, regenerate_btn, gen_video_btn, max_fps_e, debug_mode_dropdown, gen_report_btn, gen_heatmap_btn])
                 set_progressbars_done([(yolo_p, yolo_p_perc), (track_p, track_p_perc)])
                 processing_btn.config(text="Re-run object detection and or tracking")
             elif state.has_raw_yolo and not state.has_tracking_data:
-                disable_widgets([play_btn, regenerate_btn, gen_video_btn, max_fps_e, gen_report_btn, gen_heatmap_btn])
+                disable_widgets([play_btn, regenerate_btn, gen_video_btn, max_fps_e, debug_mode_dropdown, gen_report_btn, gen_heatmap_btn])
                 set_progressbars_done([(yolo_p, yolo_p_perc)])
                 reset_progressbars([(track_p, track_p_perc)])
                 processing_btn.config(text="Re-run object detection and or start tracking")
             else:
-                disable_widgets([play_btn, regenerate_btn, gen_video_btn, max_fps_e, gen_report_btn, gen_heatmap_btn])
+                disable_widgets([play_btn, regenerate_btn, gen_video_btn, max_fps_e, debug_mode_dropdown, gen_report_btn, gen_heatmap_btn])
                 reset_progressbars([(yolo_p, yolo_p_perc), (track_p, track_p_perc)])
                 processing_btn.config(text="Start processing")
 

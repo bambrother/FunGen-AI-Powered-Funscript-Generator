@@ -34,10 +34,7 @@ def analyze_tracking_results(state: AppState):
     # Deciding whether we start from there or from a user-specified later frame
     state.frame_start_track = max(max(first_penis_frame - int(state.video_info.fps), state.frame_start - int(state.video_info.fps)), 0)
     state.frame_end = state.video_info.total_frames if not state.frame_end else state.frame_end
-
-    # logger.info(f"Frame Start adjusted to: {state.frame_start}")
-    log_tr.info(f"Frame Start adjusted to: {state.frame_start_track}")
-    
+    log_tr.info(f"Frame Start adjusted to first frame with a penis or penis tip: {state.frame_start_track}")
 
     video_info = state.video_info
     fps = video_info.fps
@@ -85,11 +82,10 @@ def analyze_tracking_results(state: AppState):
     start_time = time.time()
 
     last_ui_update_time = time.time()
-    live_preview_mode_prev = state.live_preview_mode
 
     for frame_pos in tqdm(
             # range(state.frame_start, state.frame_end), unit="f", desc="Analyzing tracking data", position=0,
-            range(state.frame_start_track, state.frame_end),
+            range(state.frame_start, state.frame_end),
             unit="f",
             desc="Analyzing tracking data", position=0,
             unit_scale=False,
@@ -106,11 +102,14 @@ def analyze_tracking_results(state: AppState):
             tracker.previous_distances = previous_distances
 
         if frame_pos in list_of_frames:
-            # Get sorted boxes for the current frame
+            # Get sorted boxes based on class priority for the current frame
             sorted_boxes = results.get_boxes(frame_pos)
-            tracker.tracking_logic(state, sorted_boxes)  # Apply tracking logic
 
-            if tracker.distance:
+            # Perform tracking logic
+            if state.frame_start_track >= frame_pos:
+                tracker.tracking_logic(state, sorted_boxes)  # Apply tracking logic
+
+            if tracker and tracker.distance:
                 # Append Funscript data if distance is available
                 state.funscript_frames.append(frame_pos)
                 state.funscript_distances.append(int(tracker.distance))

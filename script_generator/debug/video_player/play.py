@@ -111,6 +111,7 @@ def play_debug_video(state, start_frame=0, end_frame=None, rolling_window_size=1
 
         # Call your overlay function
         distance_buffer, funscript_buffer, funscript_buffer_ref = draw_overlay(
+            state=state,
             frame=frame,
             frame_id=video_player.current_frame,
             logs=metrics,

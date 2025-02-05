@@ -3,6 +3,7 @@ import numpy as np
 
 from script_generator.constants import CLASS_COLORS
 from script_generator.debug.video_player.overlay_widgets import OverlayWidgets
+from script_generator.state.app_state import AppState
 
 
 def get_funscript_value(interpolator, frame_id, fps):
@@ -15,6 +16,7 @@ def get_funscript_value(interpolator, frame_id, fps):
 FONT_SIZE = 0.3
 
 def draw_overlay(
+    state: "AppState",
     frame,
     frame_id,
     logs,
@@ -44,23 +46,6 @@ def draw_overlay(
         variables = logs[frame_id].get("variables", {})
         bounding_boxes = logs[frame_id].get("bounding_boxes", [])
 
-    # Draw bounding boxes
-    for box in bounding_boxes:
-        x1, y1, x2, y2 = box["box"]
-        class_name = box["class_name"]
-        position = box["position"]
-        color = CLASS_COLORS.get(class_name, (0, 255, 0))
-        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
-        cv2.putText(
-            frame,
-            f"{class_name} {position}",
-            (x1, y1 - 5),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            FONT_SIZE,
-            color,
-            1
-        )
-
     # Display variables
     y_offset_stats = 20
     for key, value in variables.items():
@@ -75,21 +60,39 @@ def draw_overlay(
         )
         y_offset_stats += 12
 
-    # Draw locked penis box if present
-    locked_penis_box = variables.get("locked_penis_box")
-    if locked_penis_box and locked_penis_box.get("active", False):
-        x1, y1, x2, y2 = locked_penis_box["box"]
-        color = CLASS_COLORS.get("penis", (0, 255, 0))
+    # Draw bounding boxes
+    for box in bounding_boxes:
+        x1, y1, x2, y2 = box["box"]
+        class_name = box["class_name"]
+        position = box["position"]
+        color = CLASS_COLORS.get(class_name, (0, 255, 0))
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
         cv2.putText(
             frame,
-            "Locked Penis",
+            f"{class_name} {position}" if state.debug_mode == "funscript" else f"{class_name} c:{box['conf']} id:{box['track_id']}",
             (x1, y1 - 5),
             cv2.FONT_HERSHEY_SIMPLEX,
             FONT_SIZE,
             color,
             1
         )
+
+    if state.debug_mode == "funscript":
+        # Draw locked penis box if present
+        locked_penis_box = variables.get("locked_penis_box")
+        if locked_penis_box and locked_penis_box.get("active", False):
+            x1, y1, x2, y2 = locked_penis_box["box"]
+            color = CLASS_COLORS.get("penis", (0, 255, 0))
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
+            cv2.putText(
+                frame,
+                "Locked Penis",
+                (x1, y1 - 5),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                FONT_SIZE,
+                color,
+                1
+            )
 
     # Compute distance and funscript values for rolling buffer
     distance = variables.get("distance", 0)
@@ -98,9 +101,6 @@ def draw_overlay(
         funscript_value = get_funscript_value(funscript_interpolator, frame_id, fps)
     if funscript_interpolator_ref:
         funscript_value_ref = get_funscript_value(funscript_interpolator_ref, frame_id, fps)
-
-    # Draw gauge (example usage)
-    OverlayWidgets.draw_gauge(frame, funscript_value)
 
     # Shift rolling window buffers left and insert new values
     distance_buffer = np.roll(distance_buffer, -1)
@@ -115,8 +115,12 @@ def draw_overlay(
     # Draw rolling window curves
     graph_height = 100
     graph_y_start = frame.shape[0] - graph_height - 15 # B, G, R | R, G, B
-    draw_rolling_window_curve(frame, distance_buffer, (0, 255, 0), 0.5, graph_height, graph_y_start)
-    draw_rolling_window_curve(frame, funscript_buffer, (255, 0, 0), 0.5, graph_height, graph_y_start)
+    if state.debug_mode == "funscript":
+        # Draw gauge (example usage)
+        OverlayWidgets.draw_gauge(frame, funscript_value)
+
+        draw_rolling_window_curve(frame, distance_buffer, (0, 255, 0), 0.5, graph_height, graph_y_start)
+        draw_rolling_window_curve(frame, funscript_buffer, (255, 0, 0), 0.5, graph_height, graph_y_start)
     if funscript_interpolator_ref:
         draw_rolling_window_curve(frame, funscript_buffer_ref, (0, 0, 255), 0.5, graph_height, graph_y_start)
 
