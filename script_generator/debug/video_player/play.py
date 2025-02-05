@@ -34,7 +34,7 @@ def play_debug_video(state, start_frame=0, end_frame=None, rolling_window_size=1
     # Prepare funscript interpolation if available
     funscript_path, _ = get_output_file_path(state.video_path, ".funscript")
     funscript_found = os.path.exists(funscript_path)
-    funscript_times, funscript_positions = load_funscript_json(funscript_path) if funscript_found else [], []
+    funscript_times, funscript_positions = load_funscript_json(funscript_path) if funscript_found else ([], [])
     funscript_interpolator = interp1d(
         funscript_times,
         funscript_positions,
