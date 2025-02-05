@@ -1,14 +1,14 @@
-import time
-
-import cv2
-from tqdm import tqdm
-
-from script_generator.constants import UPDATE_PROGRESS_INTERVAL
-from script_generator.gui.messages.messages import ProgressMessage
-from script_generator.state.app_state import AppState
-from script_generator.debug.logger import log
-
-# TODO Re-implement? (implement in object detection pipeline?)
+# import time
+#
+# import cv2
+# from tqdm import tqdm
+#
+# from script_generator.constants import UPDATE_PROGRESS_INTERVAL
+# from script_generator.gui.messages.messages import ProgressMessage
+# from script_generator.state.app_state import AppState
+# from script_generator.debug.logger import log_sc
+#
+# # TODO Re-implement? (implement in object detection pipeline?)
 # def compute_histogram(frame):
 #     """
 #     Compute the normalized histogram of the H channel in the HSV color space.
@@ -32,7 +32,7 @@ from script_generator.debug.logger import log
 # def detect_scene_changes(state: AppState, crop=None, threshold=0.97, frame_start=0, frame_end=None):
 #     cap = cv2.VideoCapture(state.video_path)
 #     if not cap.isOpened():
-#         logger.error("Error: Could not open video.")
+#         log_sc.error("Error: Could not open video.")
 #         return []
 #
 #     # Get video properties
@@ -55,9 +55,11 @@ from script_generator.debug.logger import log
 #
 #     # Process frames
 #     for frame_pos in tqdm(
-#             range(total_frames_to_parse), desc="Detecting scene changes", position=0,
-#             unit_scale=False,
-#             unit_divisor=1
+#         range(total_frames_to_parse),
+#         desc="Detecting scene changes",
+#         position=0,
+#         unit_scale=False,
+#         unit_divisor=1
 #     ):
 #         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_start + frame_pos * frame_step)
 #         ret, frame = cap.read()
@@ -77,7 +79,7 @@ from script_generator.debug.logger import log
 #             if similarity < threshold:
 #                 # Scene change detected
 #                 current_frame = frame_start + frame_pos * frame_step
-#                 logger.info(
+#                 log_sc.info(
 #                     f"Scene change detected at frame {current_frame}, "
 #                     f"time: {int(cap.get(cv2.CAP_PROP_POS_MSEC) / 1000 // 60)} min "
 #                     f"{int(cap.get(cv2.CAP_PROP_POS_MSEC) / 1000 % 60)} sec"
@@ -111,9 +113,9 @@ from script_generator.debug.logger import log
 #     elif scene_changes[-1][1] != frame_end:
 #         scene_changes.append([scene_changes[-1][1], frame_end])
 #
-#     logger.info(f"Found {len(scene_changes)} raw scenes: {scene_changes}.")
-#     logger.info(f"Scene changes: {scene_changes}")
-#     logger.info(f"Merging short scenes...")
+#     log_sc.info(f"Found {len(scene_changes)} raw scenes: {scene_changes}.")
+#     log_sc.info(f"Scene changes: {scene_changes}")
+#     log_sc.info(f"Merging short scenes...")
 #
 #     # Merge only short scenes
 #     merged_scenes = []
@@ -130,7 +132,7 @@ from script_generator.debug.logger import log
 #             # Keep scenes longer than the minimum length
 #             merged_scenes.append(scene)
 #
-#     logger.info(f"Found {len(merged_scenes)} relevant scenes: {merged_scenes}.")
+#     log_sc.info(f"Found {len(merged_scenes)} relevant scenes: {merged_scenes}.")
 #     cap.release()
 #
 #     return merged_scenes

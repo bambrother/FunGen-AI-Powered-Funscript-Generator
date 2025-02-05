@@ -9,7 +9,7 @@ from scipy.interpolate import interp1d
 
 from script_generator.debug.debug_data import load_debug_metrics
 from script_generator.debug.logger import log
-from script_generator.debug.video_player.controls import draw_media_controls
+from script_generator.debug.video_player.controls import draw_media_controls, draw_media_controls_static_overlay
 from script_generator.debug.video_player.debug_overlay import draw_overlay
 from script_generator.debug.video_player.interaction import mouse_callback
 from script_generator.debug.video_player.state import VideoPlayer
@@ -72,6 +72,7 @@ def play_debug_video(state, start_frame=0, end_frame=None, rolling_window_size=1
         cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
         # zoom in the image is only 640x640 now
         cv2.resizeWindow(window_name, int(width * 2), int(height * 2))
+        media_controls_overlay = np.array([])
 
         # Attach mouse callback for seeking
         cv2.setMouseCallback(window_name, mouse_callback, param=video_player)
@@ -132,6 +133,12 @@ def play_debug_video(state, start_frame=0, end_frame=None, rolling_window_size=1
         else:
             # Display the frame
             draw_media_controls(frame, video_player)
+
+            if not media_controls_overlay.any():
+                media_controls_overlay = draw_media_controls_static_overlay(metrics, frame)
+
+            frame = cv2.addWeighted(frame, 1.0, media_controls_overlay, 1.0, 0)
+
             cv2.imshow("Debug Video", frame)
 
             # Throttle the loop to maintain DESIRED_FPS if processing is faster

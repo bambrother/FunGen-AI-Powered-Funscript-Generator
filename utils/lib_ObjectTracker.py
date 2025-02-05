@@ -332,8 +332,7 @@ class ObjectTracker:
                 self.consecutive_detections[check_class_first] = 0
                 self.consecutive_non_detections[check_class_first] += 1
 
-        if self.consecutive_non_detections['penis'] > self.detections_threshold * 30 \
-                and not self.penetration:  # equivalent to 3 seconds
+        if self.consecutive_non_detections['penis'] > self.detections_threshold * 30 and not self.penetration:  # equivalent to 3 seconds
             if self.locked_penis_box.active:  # is_active():
                 self.locked_penis_box.deactivate()
                 log_tr.debug(f"@{self.current_frame_id} - Deactivated locked_penis_box")
