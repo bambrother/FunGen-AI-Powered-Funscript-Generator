@@ -29,6 +29,9 @@ def create_funscript(state):
     else:
         data = state.funscript_data
 
+    if not data:
+        log_fun.warn(f"No funscript data found")
+
     try:
         log_fun.info(f"Generating funscript based on {len(data)} points...")
 

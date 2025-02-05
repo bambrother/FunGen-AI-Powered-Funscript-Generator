@@ -20,7 +20,9 @@ from script_generator.video.data_classes.video_info import get_cropped_dimension
 
 def play_debug_video(state, start_frame=0, end_frame=None, rolling_window_size=100, save_video_mode=False):
     video_info = state.video_info
-    _, metrics, _, _ = load_debug_metrics(state)
+    metrics_exist, metrics, metrics_path, _ = load_debug_metrics(state)
+    if not metrics_exist:
+        log.warn(f"Could not play debug video as metrics file was not found in: {metrics_path}")
     width, height = get_cropped_dimensions(video_info)
 
     video_player = VideoPlayer(
@@ -31,13 +33,14 @@ def play_debug_video(state, start_frame=0, end_frame=None, rolling_window_size=1
 
     # Prepare funscript interpolation if available
     funscript_path, _ = get_output_file_path(state.video_path, ".funscript")
-    funscript_times, funscript_positions = load_funscript_json(funscript_path)
+    funscript_found = os.path.exists(funscript_path)
+    funscript_times, funscript_positions = load_funscript_json(funscript_path) if funscript_found else [], []
     funscript_interpolator = interp1d(
         funscript_times,
         funscript_positions,
         kind="linear",
         fill_value="extrapolate"
-    )
+    ) if funscript_found and len(funscript_times) > 0 and len(funscript_positions) > 0 else None
     funscript_interpolator_ref = None
     if state.reference_script and os.path.exists(state.reference_script):
         funscript_times_ref, funscript_positions_ref = load_funscript_json(state.reference_script)
