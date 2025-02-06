@@ -108,7 +108,8 @@ def analyze_tracking_results(state: AppState):
             sorted_boxes = results.get_boxes(frame_pos)
 
             # Perform tracking logic
-            if state.frame_start_track >= frame_pos and not no_penis_frame:
+            #if state.frame_start_track >= frame_pos and not no_penis_frame:
+            if state.frame_start_track <= frame_pos and not no_penis_frame:
                 tracker.tracking_logic(state, sorted_boxes)  # Apply tracking logic
 
             if tracker and tracker.distance:
