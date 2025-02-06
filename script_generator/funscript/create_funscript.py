@@ -16,6 +16,7 @@ def create_funscript(state):
     output_path, _ = get_output_file_path(state.video_path, ".funscript")
 
     raw_funscript_path, _ = get_output_file_path(state.video_path, ".json", "rawfunscript")
+
     if os.path.exists(raw_funscript_path) and (state.funscript_data is None or len(state.funscript_data) == 0):
         log_fun.info("len funscript data is 0, trying to load file")
         # Read the funscript data from the JSON file
@@ -38,6 +39,11 @@ def create_funscript(state):
         # Extract timestamps and positions
         ats = [p[0] for p in data]
         positions = [p[1] for p in data]
+
+        # saving raw, unfiltered funscript for advanced scripters
+        zip_raw_positions = zip(ats, positions)
+        raw_unfiltered_funscript_path, _ = get_output_file_path(state.video_path, ".funscript", "rawfunscript")
+        write_funscript(zip_raw_positions, raw_unfiltered_funscript_path, state.video_info.fps)
 
         log_fun.info(f"Positions adjustment - step 1 (noise removal)")
         # Run the Savitzky-Golay filter
