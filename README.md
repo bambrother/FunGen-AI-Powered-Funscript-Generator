@@ -2,13 +2,6 @@
 
 This project is a Python-based tool for generating Funscript files from VR videos using Computer Vision (CV) and AI techniques. It leverages YOLO (You Only Look Once) object detection and custom tracking algorithms to automate the process of creating Funscript files for interactive devices.
 
-If you find this project useful, consider supporting me on:
-
-- **Ko-fi**: [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H818EIJV) 
-- **Patreon**: [https://www.patreon.com/c/k00gar](https://www.patreon.com/c/k00gar)
-
-Your support helps me continue developing and improving this project!
-
 Join the **Discord community** for discussions and support: [Discord Community](https://discord.gg/WYkjMbtCZA)
 
 The necessary YOLO models will also be available via the Discord.
