@@ -457,6 +457,11 @@ class ObjectTracker:
                             ((real_pen_y3 - low_y) / real_pen_height) * 100)
 
                     normalized_dist_to_penis_base = min(max(0, dist_to_penis_base), 100)
+
+                    # if hand, foot or face, limit to 100-50
+                    if class_name in ['hand', 'foot', 'face']:
+                        normalized_dist_to_penis_base = (normalized_dist_to_penis_base) // 2 + 50
+
                     self.update_normalized_distance_to_penis(track_id, normalized_dist_to_penis_base)
 
                     weight_pos_track_id = sum(
@@ -544,6 +549,7 @@ class ObjectTracker:
             # meaning distance was not actuated
             # distance = self.previous_distances[-1]
             distance = 100
+            # might not be smart to put 100, we might just want to trigger a kalman prediction here.
 
         self.update_distance(distance)
 
