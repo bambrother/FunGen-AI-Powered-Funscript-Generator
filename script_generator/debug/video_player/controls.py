@@ -21,7 +21,7 @@ def draw_media_controls(frame, video_player: VideoPlayer):
 
 def draw_media_controls_static_overlay(metrics, first_frame):
     height, width, _ = first_frame.shape
-    overlay_height = 15
+    overlay_height = 14
     y_start = height - overlay_height
     frames = len(metrics)
     px_frame = width / frames

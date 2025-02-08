@@ -2,7 +2,7 @@ import os
 import platform
 
 VERSION = "0.2.0"
-OBJECT_DETECTION_VERSION = "0.1.0"
+OBJECT_DETECTION_VERSION = "1.0.0"
 TRACKING_VERSION = "0.1.0"
 FUNSCRIPT_VERSION = "0.1.0"
 CONFIG_VERSION = 1
@@ -13,7 +13,7 @@ CONFIG_VERSION = 1
 
 RENDER_RESOLUTION = 640
 TEXTURE_RESOLUTION = RENDER_RESOLUTION * 1.3  # Texture size that is used to texture the opengl sphere
-YOLO_BATCH_SIZE = 1 if platform.system() == "Darwin" else 30  # Mac doesn't support batching
+YOLO_BATCH_SIZE = 1 if platform.system() == "Darwin" else 30  # Mac doesn't support batching. Note TensorRT (.engine) is compiled for a batch size of 30
 YOLO_PERSIST = True  # Big impact on performance but also improves tracking
 
 ##################################################################################################

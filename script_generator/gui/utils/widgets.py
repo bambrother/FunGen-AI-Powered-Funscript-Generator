@@ -13,7 +13,7 @@ LABEL_WIDTH = 150
 
 class Widgets:
     @staticmethod
-    def frame(parent, title=None, main_section=False, **grid_kwargs):
+    def frame(parent, title=None, main_section=False, min_height=0, **grid_kwargs):
         if title:
             frame_cls = ttk.LabelFrame
             if main_section:
@@ -39,18 +39,54 @@ class Widgets:
             for j in range(frame.grid_size()[1]):  # Rows
                 if frame.grid_rowconfigure(j)["weight"] == 0:  # Avoid overwriting custom weights
                     frame.grid_rowconfigure(j, weight=1)
+                    frame.grid_rowconfigure(j, minsize=min_height)
 
         frame.bind("<Configure>", configure_grid)
 
         return frame
 
     @staticmethod
-    def label(frame, text, tooltip_text=None, **grid_kwargs):
-        label = ttk.Label(frame, text=text)
+    def label(frame, text, tooltip_text=None, align="center", **grid_kwargs):
+        align_options = {"left": "w", "center": "center", "right": "e"}
+        anchor_value = align_options.get(align, "center")
+
+        label = ttk.Label(frame, text=text, anchor=anchor_value, justify=align)
+
         label.grid(**grid_kwargs)
 
         if tooltip_text:
             Tooltip(label, tooltip_text)
+
+        return label
+
+    @staticmethod
+    def link(frame, text, command, tooltip_text=None, visible=True, **grid_kwargs):
+        """Creates a clickable hyperlink-style label with a dynamic show method"""
+        label = tk.Label(
+            frame,
+            text=text,
+            fg="blue",
+            cursor="hand2",
+            font=("Arial", 10, "underline")
+        )
+
+        label.bind("<Button-1>", lambda e: command())
+
+        if tooltip_text:
+            Tooltip(label, tooltip_text)
+
+        if visible:
+            label.grid(**grid_kwargs)
+        else:
+            label.grid_remove()
+
+        def show(is_visible: bool):
+            if is_visible:
+                label.grid(**grid_kwargs)
+            else:
+                label.grid_remove()
+
+        label.show = show
 
         return label
 
@@ -86,10 +122,10 @@ class Widgets:
         label = tk.Label(container, text=label_text, anchor="w", width=label_width_px // 7)
         label.grid(row=0, column=0, sticky="w", padx=(5, 2))
 
-        entry_container = ttk.Frame(container, width=entry_width_px)
+        entry_container = ttk.Frame(container, width=entry_width_px // 7)
         entry_container.grid(row=0, column=1, sticky="ew", padx=(2, 5))
         entry_container.grid_propagate(False)  # Prevent resizing
-        entry = ttk.Entry(entry_container, textvariable=value, width=entry_width_px)
+        entry = ttk.Entry(entry_container, textvariable=value)
         entry.pack(fill="both", expand=True)
 
         if tooltip_text:
@@ -98,22 +134,44 @@ class Widgets:
         return container, entry, value
 
     @staticmethod
-    def button(parent, button_text, on_click, row=0, column=0, tooltip_text=None, style_name="Custom.TButton", sticky="w"):
-        style = ttk.Style()
-        style.configure(style_name, padding=(10, 3))
+    def button(parent, button_text, command, row=0, column=0, tooltip_text=None, visible=True, default_style=False, **grid_kwargs):
+        grid_kwargs.setdefault("pady", PADDING_Y)
+        grid_kwargs.setdefault("padx", PADDING_X)
+        grid_kwargs.setdefault("sticky", "w")
 
-        button = ttk.Button(parent, text=button_text, command=on_click, style=style_name)
-        button.grid(row=row, column=column, sticky=sticky, padx=PADDING_X, pady=PADDING_Y)
+        if default_style:
+            button = ttk.Button(parent, text=button_text, command=command)
+        else:
+            style = ttk.Style()
+            style.configure("Custom.TButton", padding=(10, 3))
+            button = ttk.Button(parent, text=button_text, command=command, style="Custom.TButton")
 
         if tooltip_text:
             Tooltip(button, tooltip_text)
 
+        if visible:
+            button.grid(row=row, column=column, **grid_kwargs)
+        else:
+            button.grid_remove()
+
+        def show(is_visible: bool):
+            if is_visible:
+                button.grid(row=row, column=column, **grid_kwargs)
+            else:
+                button.grid_remove()
+
+        button.show = show
+
         return button
 
     @staticmethod
-    def file_selection(parent, label_text, button_text, file_selector_title, file_types, state, attr, command=None, row=0, label_width_px=150, button_width_px=100, tooltip_text=None, select_folder=False):
+    def file_selection(parent, label_text, button_text, file_selector_title, file_types, state, attr, command=None, row=0, label_width_px=150, button_width_px=100, tooltip_text=None, select_folder=False, **grid_kwargs):
+        grid_kwargs.setdefault("pady", 5)
+        grid_kwargs.setdefault("padx", 5)
+        grid_kwargs.setdefault("sticky","nsew")
+
         container = tk.Frame(parent)
-        container.grid(row=row, column=0, sticky="nsew", padx=5, pady=5)
+        container.grid(row=row, column=0,  **grid_kwargs)
 
         def on_change(val):
             setattr(state, attr, val)

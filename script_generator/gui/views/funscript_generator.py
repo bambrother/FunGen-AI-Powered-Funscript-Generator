@@ -11,8 +11,9 @@ from script_generator.gui.controller.regenerate_funscript import regenerate_funs
 from script_generator.gui.controller.stop_processing import stop_processing
 from script_generator.gui.messages.messages import UIMessage, ProgressMessage, UpdateGUIState
 from script_generator.gui.utils.utils import enable_widgets, disable_widgets, set_progressbars_done, reset_progressbars
-from script_generator.gui.utils.widgets import Widgets
+from script_generator.gui.utils.widgets import Widgets, LABEL_WIDTH
 from script_generator.gui.views.popups.create_debug_video import render_debug_video_popup
+from script_generator.gui.views.popups.edit_video_info import render_video_edit_popup
 from script_generator.object_detection.util.data import get_raw_yolo_file_info
 from script_generator.state.app_state import AppState
 
@@ -34,9 +35,13 @@ class FunscriptGeneratorPage(tk.Frame):
         # region VIDEO SELECTION
         video_selection = Widgets.frame(wrapper, title="Video", main_section=True)
 
+
         def update_video_path():
             state.set_video_info()
             update_ui_for_state()
+            new_label = f"VR: {state.video_info.is_vr}, Fisheye: {state.video_info.is_fisheye}, FOV {state.video_info.fov}" if state.video_info else ""
+            video_label.config(text=new_label)
+            video_info_btn.show(state.video_info)
 
         _, fs_entry, fs_button, _ = Widgets.file_selection(
             attr="video_path",
@@ -47,19 +52,13 @@ class FunscriptGeneratorPage(tk.Frame):
             file_types=[("Text Files", "*.mp4 *.avi *.mov *.mkv"), ("All Files", "*.*")],
             state=state,
             tooltip_text="The video to generate a funscript for. For proper detection of fisheye keep the suffix like _FISHEYE190, _MKX200, etc. in the filename\n\nIn the future we'll add the option to override this in the UI.",
-            command=lambda val: update_video_path()
+            command=lambda val: update_video_path(),
+            pady=(0, 0)
         )
 
-        # _, _, reader_dropdown, _ = Widgets.dropdown(
-        #     attr="video_reader",
-        #     parent=video_selection,
-        #     label_text="Video Reader",
-        #     options=["FFmpeg", *([] if is_mac() else ["FFmpeg + OpenGL (Windows)"])],
-        #     default_value=state.video_reader,
-        #     tooltip_text=("On Mac only FFmpeg is supported" if is_mac() else "FFmpeg + OpenGL is usually about 30% faster on a good GPU."),
-        #     state=state,
-        #     row=1
-        # )
+        video_info_container = Widgets.frame(video_selection, row=1, padx=(0, 0), pady=(0, 5), min_height=35)
+        video_label = Widgets.label(video_info_container, "", None, align="left", padx=(LABEL_WIDTH + 17, 0), sticky="w", row=0)
+        video_info_btn = Widgets.button(video_info_container, "Edit", command=lambda: Widgets.create_popup(title="Edit video settings", master=controller, width=350, height=120, content_builder=lambda window, user_action: render_video_edit_popup(window, state, update_video_path)), tooltip_text="Override the default detected values", visible=False, default_style=True, padx=(0, 10), column=90, row=0)
         # endregion
 
         # # region OPTIONAL SETTINGS
@@ -213,12 +212,12 @@ class FunscriptGeneratorPage(tk.Frame):
         _, _, debug_mode_dropdown, _ = Widgets.dropdown(
             attr="debug_mode",
             parent=general,
-            label_text="mode",
+            label_text="Mode",
             options=["funscript", "detection"],
             default_value=state.debug_mode,
             tooltip_text="Change the debug metrics\nfunscript: Script overlay and funscript metrics\ndetection: Shows object detection boxes, confidence score and tracking id",
             state=state,
-            label_width_px=45,
+            label_width_px=33,
             row=1,
             column=29
         )
@@ -352,3 +351,4 @@ class FunscriptGeneratorPage(tk.Frame):
         self.state.update_ui = update_ui
         update_ui_for_state()
         # endregion
+

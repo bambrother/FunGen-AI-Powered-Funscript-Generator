@@ -71,6 +71,7 @@ def get_projection_and_fov_from_filename(filename):
             projection = pattern["projection"]
             fov = pattern["fov"]
             is_fisheye = pattern["is_fisheye"]
+            is_vr = True
             break
     log_vid.info(f"Video Format: Projection={projection}, FOV={fov}, is_fisheye={is_fisheye}")
 

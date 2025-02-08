@@ -176,10 +176,10 @@ def main():
                 average_time = sum(processing_times) / len(processing_times) if processing_times else 0
 
 
-                queued_paths = "\n".join(f" - {movie}" for movie in running) if running else "None"
+                queued_paths = "\n".join(f" - {movie}" for movie in currently_processing) if currently_processing else "None"
                 log.info(
-                    f"Progress: {completed_count}/{total_count} completed. Total run time: {str(timedelta(seconds=int(total_run_time)))} Average time per completed movie: {str(timedelta(seconds=int(average_time)))} seconds (not taking into account progress on running processes)."
-                    f"Queued Movies:\n{queued_paths}"
+                    f"Progress: {completed_count}/{total_count} completed | Total run time: {str(timedelta(seconds=int(total_run_time)))} | Average parallel time: {str(timedelta(seconds=int(average_time // args.num_workers)))}s | average completion time: {str(timedelta(seconds=int(average_time)))}s (not taking into account progress made on running processes)."
+                    f"\nQueued Movies:\n{queued_paths}"
                 )
 
                 if ret == 0:

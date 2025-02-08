@@ -37,7 +37,7 @@ class YoloWorker(AbstractTaskProcessor):
         start_time = time.time()
         # Yolo expects bgr images when using numpy frames
         # yolo_results = self.state.yolo_model(frames, conf=YOLO_CONF, verbose=False) # replace with this line for pipeline speed testing
-        yolo_results = self.state.yolo_model.track(frames, persist=YOLO_PERSIST, conf=YOLO_CONF, verbose=False)
+        yolo_results = self.state.yolo_model.track(frames, persist=YOLO_PERSIST, conf=YOLO_CONF, verbose=False) # , tracker="bytetrack.yaml") # , iou=0.5, show=True
         avg_time = (time.time() - start_time) / len(tasks)
 
         for t, result in zip(tasks, yolo_results):

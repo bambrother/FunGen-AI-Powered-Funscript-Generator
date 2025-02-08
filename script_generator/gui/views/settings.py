@@ -120,3 +120,14 @@ class SettingsPage(tk.Frame):
             state=self.state,
             command=handle_log_level
         )
+
+        # _, _, reader_dropdown, _ = Widgets.dropdown(
+        #     attr="video_reader",
+        #     parent=window,
+        #     label_text="Video Reader",
+        #     options=["FFmpeg", *([] if is_mac() else ["FFmpeg + OpenGL (Windows)"])],
+        #     default_value=state.video_reader,
+        #     tooltip_text=("On Mac only FFmpeg is supported" if is_mac() else "FFmpeg + OpenGL is usually about 30% faster on a good GPU."),
+        #     state=state,
+        #     row=1
+        # )
