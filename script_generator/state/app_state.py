@@ -47,6 +47,7 @@ class AppState:
 
         # Gui/settings debug
         self.log_level = c.get("log_level")
+        self.tracking_logic_version = c.get("tracking_logic_version")
         self.save_debug_file: bool = True
         self.live_preview_mode: bool = False
         self.reference_script: string = None

@@ -49,7 +49,8 @@ DEFAULT_CONFIG = {
     "copy_funscript_to_movie_dir": True,
     "funscript_output_dir": None,
     "make_funscript_backup": True,
-    "log_level": "INFO"
+    "log_level": "INFO",
+    "tracking_logic_version": 1
 }
 
 ##################################################################################################

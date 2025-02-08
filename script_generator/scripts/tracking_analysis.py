@@ -1,4 +1,4 @@
-from script_generator.analysis.workers.analyze_tracking_results import analyze_tracking_results
+from script_generator.analysis.workers import analyze_tracking_results_v1, analyze_tracking_results_v2
 from script_generator.debug.logger import log_tr
 from script_generator.funscript.create_funscript import create_funscript
 from script_generator.object_detection.util.data import get_raw_yolo_file_info
@@ -16,7 +16,8 @@ def tracking_analysis(state):
     meta = MetaData.get_create_meta(state)
 
     # Performing the tracking part and generation of the raw funscript data
-    state.funscript_data = analyze_tracking_results(state)
+    state.funscript_data = analyze_tracking_results_v1(state) if state.tracking_logic_version == 1 else analyze_tracking_results_v2(state)
+
 
     # Save debug file
     state.debug_data.save_debug_file()

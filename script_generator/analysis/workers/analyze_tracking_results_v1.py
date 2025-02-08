@@ -19,7 +19,7 @@ from script_generator.video.data_classes.video_info import get_cropped_dimension
 from utils.lib_ObjectTracker import ObjectTracker
 
 
-def analyze_tracking_results(state: AppState):
+def analyze_tracking_results_v1(state: AppState):
     exists, yolo_data, raw_yolo_path, _ = load_yolo_data(state)
     results = make_data_boxes(yolo_data)
     width, height = get_cropped_dimensions(state.video_info)
