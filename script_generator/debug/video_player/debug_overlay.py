@@ -65,11 +65,17 @@ def draw_overlay(
         x1, y1, x2, y2 = box["box"]
         class_name = box["class_name"]
         position = box["position"]
-        color = CLASS_COLORS.get(class_name, (0, 255, 0))
-        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
+        box_excluded = position is None and state.debug_mode == "funscript"
+        color = CLASS_COLORS.get(class_name, (0, 255, 0)) if not box_excluded else (70, 70, 70)
+        alpha = 0.5 if box_excluded else 0.8
+
+        overlay = frame.copy()
+        cv2.rectangle(overlay, (x1, y1), (x2, y2), color, 1)
+
+        text = f"{class_name} {position}" if state.debug_mode == "funscript" else f"{class_name} c:{box['conf']} id:{box['track_id']}"
         cv2.putText(
-            frame,
-            f"{class_name} {position}" if state.debug_mode == "funscript" else f"{class_name} c:{box['conf']} id:{box['track_id']}",
+            overlay,
+            text,
             (x1, y1 - 5),
             cv2.FONT_HERSHEY_SIMPLEX,
             FONT_SIZE,
@@ -77,12 +83,16 @@ def draw_overlay(
             1
         )
 
+        cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
+
     if state.debug_mode == "funscript":
         # Draw locked penis box if present
         locked_penis_box = variables.get("locked_penis_box")
         if locked_penis_box and locked_penis_box.get("active", False):
+            overlay = frame.copy()
             x1, y1, x2, y2 = locked_penis_box["box"]
-            color = CLASS_COLORS.get("penis", (0, 255, 0))
+            alpha = 0.4
+            color = CLASS_COLORS.get("locked_penis", (255, 255, 0))
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
             cv2.putText(
                 frame,
@@ -93,6 +103,7 @@ def draw_overlay(
                 color,
                 1
             )
+            cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
 
     # Compute distance and funscript values for rolling buffer
     distance = variables.get("distance", 0)
@@ -114,7 +125,7 @@ def draw_overlay(
 
     # Draw rolling window curves
     graph_height = 100
-    graph_y_start = frame.shape[0] - graph_height - 15 # B, G, R | R, G, B
+    graph_y_start = frame.shape[0] - graph_height - 15  # B, G, R | R, G, B
     if state.debug_mode == "funscript":
         # Draw gauge (example usage)
         OverlayWidgets.draw_gauge(frame, funscript_value)
@@ -144,5 +155,3 @@ def draw_rolling_window_curve(frame, buffer, color, alpha, graph_height, graph_y
         cv2.line(overlay, (x1, y1), (x2, y2), color, 1)
 
     cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
-
-

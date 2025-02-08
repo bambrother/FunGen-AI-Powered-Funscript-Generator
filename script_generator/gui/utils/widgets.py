@@ -101,7 +101,7 @@ class Widgets:
         return entry
 
     @staticmethod
-    def input(parent, label_text, state, attr, row=0, column=0, label_width_px=LABEL_WIDTH, entry_width_px=200, command=None, tooltip_text=None):
+    def input(parent, label_text, state, attr, row=0, column=0, label_width_px=LABEL_WIDTH, width=None, command=None, tooltip_text=None):
         container = ttk.Frame(parent)
         container.grid(row=row, column=column, sticky="ew", padx=5, pady=5)
         container.columnconfigure(1, weight=1)
@@ -122,10 +122,17 @@ class Widgets:
         label = tk.Label(container, text=label_text, anchor="w", width=label_width_px // 7)
         label.grid(row=0, column=0, sticky="w", padx=(5, 2))
 
-        entry_container = ttk.Frame(container, width=entry_width_px // 7)
+        entry_container = ttk.Frame(container)
         entry_container.grid(row=0, column=1, sticky="ew", padx=(2, 5))
         entry_container.grid_propagate(False)  # Prevent resizing
-        entry = ttk.Entry(entry_container, textvariable=value)
+
+        entry_kwargs = {"textvariable": value}
+        if width:
+            char_width = width // 7
+            entry_kwargs["width"] = char_width
+            entry_container.configure(width=width)
+
+        entry = ttk.Entry(entry_container, **entry_kwargs)
         entry.pack(fill="both", expand=True)
 
         if tooltip_text:
@@ -244,7 +251,7 @@ class Widgets:
         return container, progress_bar, progress_label, percentage_label
 
     @staticmethod
-    def dropdown(parent, label_text, options, default_value, state, attr, row=0, column=0, command=None, label_width_px=LABEL_WIDTH, tooltip_text=None, **grid_kwargs):
+    def dropdown(parent, label_text, options, default_value, state, attr, row=0, column=0, command=None, label_width_px=LABEL_WIDTH, dropdown_width_px=None, tooltip_text=None, **grid_kwargs):
         selected_value = tk.StringVar(value=default_value)
 
         # Create a container for the dropdown
@@ -257,8 +264,10 @@ class Widgets:
         label = tk.Label(container, text=label_text, anchor="w", width=label_width_px // 7)
         label.grid(row=0, column=0, sticky="w", padx=(5, 2))
 
-        # Dropdown (Combobox) widget
-        dropdown = ttk.Combobox(container, textvariable=selected_value, values=options, state="readonly")
+        dropdown_kwargs = {"textvariable": selected_value, "values": options, "state": "readonly"}
+        if dropdown_width_px is not None:
+            dropdown_kwargs["width"] = dropdown_width_px // 7
+        dropdown = ttk.Combobox(container, **dropdown_kwargs)
         dropdown.grid(row=0, column=1, sticky="ew", padx=(2, 5))
 
         def on_change(val):

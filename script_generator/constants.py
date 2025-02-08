@@ -90,10 +90,11 @@ CLASS_NAMES = {
     'hips center': 10
 }
 CLASS_COLORS = {
+    "locked_penis": (0, 255, 255), # yellow
     "penis": (255, 0, 0),  # red
     "glans": (0, 128, 0),  # green
     "pussy": (0, 0, 255),  # blue
-    "butt": (255, 255, 0),  # yellow
+    "butt": (0, 180, 255),  # deep yellow
     "anus": (128, 0, 128),  # purple
     "breast": (255, 165, 0),  # orange
     "navel": (0, 255, 255),  # cyan

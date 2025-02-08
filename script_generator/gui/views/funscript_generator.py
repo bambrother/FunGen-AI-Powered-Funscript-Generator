@@ -206,7 +206,7 @@ class FunscriptGeneratorPage(tk.Frame):
             row=1,
             column=28,
             label_width_px=45,
-            entry_width_px=10,
+            width=55,
             tooltip_text="The maximum FPS for the debug video"
         )
         _, _, debug_mode_dropdown, _ = Widgets.dropdown(
@@ -218,6 +218,7 @@ class FunscriptGeneratorPage(tk.Frame):
             tooltip_text="Change the debug metrics\nfunscript: Script overlay and funscript metrics\ndetection: Shows object detection boxes, confidence score and tracking id",
             state=state,
             label_width_px=33,
+            dropdown_width_px=80,
             row=1,
             column=29
         )
