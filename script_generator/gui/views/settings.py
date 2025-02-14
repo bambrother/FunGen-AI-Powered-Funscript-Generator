@@ -61,7 +61,7 @@ class SettingsPage(tk.Frame):
             file_selector_title="Select YOLO model",
             file_types=[("YOLO Model Files", "*.onnx"), ("YOLO Model Files", "*.pt"), ("CoreML Model Files", "*.mlmodel"), ("All Files", "*.*")],
             state=self.state,
-            tooltip_text="Path to the FFmpeg executable.",
+            tooltip_text="Path to the YOLO model file.",
             command=lambda val: c.save(),
             row=0
         )
