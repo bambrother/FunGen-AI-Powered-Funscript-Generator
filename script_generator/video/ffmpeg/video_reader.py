@@ -14,6 +14,7 @@ class VideoReaderFFmpeg:
         self.start_frame = start_frame
         self.current_frame_number = 0
         self.current_time = 0
+        self.process_pre = None
         self.process = None
         self.frame_size = None
         self.width = None
@@ -31,9 +32,15 @@ class VideoReaderFFmpeg:
             start_frame,
             disable_opengl=True
         )
-        log.info(f"Starting FFmpeg reader with command: {' '.join(cmd)}")
+        ffmpeg_command_str = ' '.join(cmd[0]) + " | " + ' '.join(cmd[1]) if isinstance(cmd[0], list) else ' '.join(cmd)
+        log.debug(f"Starting FFmpeg reader with command: {' '.join(ffmpeg_command_str)}")
 
-        self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        if self.state.video_info.bit_depth == 8 or self.state.ffmpeg_hwaccel != "cuda":
+            self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        else:
+            self.process_pre = subprocess.Popen(cmd[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.process = subprocess.Popen(cmd[1], stdin=self.process_pre.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.process_pre.stdout.close()
 
     def read(self):
         """Read the next frame from the video."""
@@ -65,6 +72,10 @@ class VideoReaderFFmpeg:
 
     def release(self):
         """Release resources and terminate the FFmpeg process."""
+        if self.process_pre:
+            self.process_pre.stdout.close()
+            self.process_pre.terminate()
+            self.process_pre = None
         if self.process:
             self.process.stdout.close()
             self.process.terminate()

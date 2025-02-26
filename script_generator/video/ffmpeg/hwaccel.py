@@ -143,7 +143,6 @@ def _supports_scale_acceleration(state):
     video = state.video_info
     return (
         state.ffmpeg_hwaccel == "cuda" and
-        video.bit_depth == 8 and
         (video.codec_name != "h264" or (video.width <= 4096 and video.height <= 4096))
     )
 

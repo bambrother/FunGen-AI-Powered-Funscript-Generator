@@ -25,14 +25,24 @@ def get_vr_video_filters(video, disable_opengl=False):
     out_format = f"format=nv12," if cuda else ""
 
     if state.video_reader == "FFmpeg" or disable_opengl:
-        filters = [
-            scale,
-            crop,
-            f"{out_format}v360={projection}:in_stereo=2d:output=sg:iv_fov={iv_fov}:ih_fov={ih_fov}:"
+        cpu_filters = [
+            f"v360={projection}:in_stereo=2d:output=sg:iv_fov={iv_fov}:ih_fov={ih_fov}:"
             f"d_fov={d_fov}:v_fov={v_fov}:h_fov={h_fov}:pitch={VR_TO_2D_PITCH}:yaw=0:roll=0:"
             f"w={RENDER_RESOLUTION}:h={RENDER_RESOLUTION}:interp=lanczos:reset_rot=1",
             "lutyuv=y=gammaval(0.7)"
         ]
+        if video.bit_depth == 8 or state.ffmpeg_hwaccel != "cuda":
+            filters = [
+                scale,
+                crop,
+                out_format,
+                *cpu_filters
+            ]
+
+        # for 10 bit with cuda we do the cropping and scaling in a previous step of the ffmpeg pipe
+        else:
+            filters = cpu_filters
+
     else:
         filters = [
             scale,

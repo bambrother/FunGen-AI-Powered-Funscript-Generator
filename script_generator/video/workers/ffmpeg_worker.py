@@ -22,9 +22,16 @@ class VideoWorker(AbstractTaskProcessor):
             self.state,
             self.state.frame_start
         )
-        log_vid.info(f"FFMPEG executing command: {' '.join(cmd)}")
+        ffmpeg_command_str = ' '.join(cmd[0]) + " | " + ' '.join(cmd[1]) if isinstance(cmd[0], list) else ' '.join(cmd)
+        log_vid.info(f"FFMPEG executing command: {ffmpeg_command_str}")
 
-        self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if self.state.video_info.bit_depth == 8 or self.state.ffmpeg_hwaccel != "cuda":
+            self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        else:
+            self.process_pre = subprocess.Popen(cmd[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.process = subprocess.Popen(cmd[1], stdin=self.process_pre.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.process_pre.stdout.close()
+
         current_frame = self.state.frame_start
 
         try:
@@ -32,8 +39,11 @@ class VideoWorker(AbstractTaskProcessor):
                 in_bytes = self.process.stdout.read(frame_size)
                 if not in_bytes:
                     if current_frame == self.state.frame_start:
+                        if self.process_pre:
+                            error_output = self.process_pre.stderr.read().decode('utf-8', errors='replace')
+                            log_vid.error(f"FFMPEG could not read frames from this video\nFFMPEG command:\n{ffmpeg_command_str}\nFFMPEG ERROR:\n{error_output}")
                         error_output = self.process.stderr.read().decode('utf-8', errors='replace')
-                        log_vid.error(f"FFMPEG could not read frames from this video\nFFMPEG command:\n{' '.join(cmd)}\nFFMPEG ERROR:\n{error_output}")
+                        log_vid.error(f"FFMPEG could not read frames from this video\nFFMPEG command:\n{ffmpeg_command_str}\nFFMPEG ERROR:\n{error_output}")
                         raise FFMpegError(f"FFMPEG could not read frames from this video. See the log for details.")
                     else:
                         log_vid.info("FFMPEG received last frame")
@@ -51,6 +61,11 @@ class VideoWorker(AbstractTaskProcessor):
 
                 self.finish_task(task)
                 current_frame += 1
+
+                # For the ffmpeg pipe we need to detect the last frame and close manually
+                if current_frame >= self.state.video_info.total_frames:
+                    log_vid.info("FFMPEG received last frame")
+                    break
 
         except Exception as e:
             # Suppress any errors when the thread is force closed
@@ -73,3 +88,11 @@ class VideoWorker(AbstractTaskProcessor):
             except subprocess.TimeoutExpired:
                 self.process.kill()
             self.process = None
+
+        if self.process_pre:
+            self.process_pre.terminate()
+            try:
+                self.process_pre.wait(timeout=1)
+            except subprocess.TimeoutExpired:
+                self.process_pre.kill()
+            self.process_pre = None
