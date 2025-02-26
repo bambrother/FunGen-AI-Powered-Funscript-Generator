@@ -182,7 +182,7 @@ def analyze_tracking_results_v2(state: AppState):
         if state.live_preview_mode:
             if not reader:
                 reader = VideoReaderFFmpeg(state, frame_pos)
-                reader.set(cv2.CAP_PROP_POS_FRAMES, frame_pos)
+                reader.set_frame(frame_pos)
 
             ret, frame = reader.read()
             frame = frame.copy()

@@ -3,7 +3,7 @@ import platform
 
 import torch
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 OBJECT_DETECTION_VERSION = "1.0.0"
 TRACKING_VERSION = "0.1.0"
 FUNSCRIPT_VERSION = "0.1.0"
@@ -15,7 +15,7 @@ CONFIG_VERSION = 1
 
 RENDER_RESOLUTION = 640
 TEXTURE_RESOLUTION = RENDER_RESOLUTION * 1.3  # Texture size that is used to texture the opengl sphere
-YOLO_BATCH_SIZE = 1 if platform.system() == "Darwin" or not torch.cuda.is_available() else 30  # Mac doesn't support batching. Note TensorRT (.engine) is compiled for a batch size of 30
+YOLO_BATCH_SIZE = 1 if platform.system() == "Darwin" else 30  # Mac doesn't support batching. Note TensorRT (.engine) and .onnx is compiled for a batch size of 30
 YOLO_PERSIST = True  # Big impact on performance but also improves tracking
 
 ##################################################################################################
@@ -128,22 +128,52 @@ PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT_PATH = os.path.join(PROJECT_PATH, "output")
 MODELS_PATH = os.path.join(PROJECT_PATH, "models")
 MODEL_FILENAMES = [
-    #    "k00gar-11n-200ep-best.mlpackage",
-    #    "k00gar-11n-200ep-best.pt",
-    #    "k00gar-11n-200ep-best.onnx",
+    "FunGen-12s-pov-1.1.0.engine",
+    "FunGen-12s-pov-1.1.0.pt",
+    "FunGen-12s-pov-1.1.0.mlpackage",
+    "FunGen-12s-pov-1.1.0.onnx",
+    "FunGen-12s-mix-1.1.0.engine",
+    "FunGen-12s-mix-1.1.0.mlpackage",
+    "FunGen-12s-mix-1.1.0.pt",
+    "FunGen-12s-mix-1.1.0.onnx",
+    "FunGen-11n-mix-1.0.0.engine",
+    "FunGen-11n-mix-1.0.0.mlpackage",
+    "FunGen-11n-mix-1.0.0.onnx",
+    "FunGen-11n-mix-1.0.0.pt",
+    "FunGen-11s-mix-1.0.0.engine",
+    "FunGen-11s-mix-1.0.0.mlpackage",
+    "FunGen-11s-mix-1.0.0.onnx",
+    "FunGen-11s-mix-1.0.0.pt",
     "k00gar-11n-RGB-200ep-best.mlpackage",
     "k00gar-11n-RGB-200ep-best.pt",
-    "k00gar-11n-RGB-200ep-best.onnx",
-    "yolo11n-pose.mlpackage",
-    "yolo11n-pose.pt",
-    "yolo11n-pose.onnx"
+    "k00gar-11n-RGB-200ep-best.onnx"
 ]
 LOGO = os.path.join(PROJECT_PATH, "resources", "logo.png")
 ICON = os.path.join(PROJECT_PATH, "resources", "icon.ico")
 CONFIG_FILE_PATH = os.path.join(PROJECT_PATH, "config.json")
 
 ##################################################################################################
+# DEBUG VIDEO
+##################################################################################################
+
+FUNSCRIPT_BUFFER_SIZE = 500
+
+##################################################################################################
+# KEY CODES
+##################################################################################################
+
+LEFT = 2424832
+RIGHT = 2555904
+SPACE = 32
+Q = 113
+COMMA = 44
+PERIOD = 46
+LEFT_BRACKET = 91
+RIGHT_BRACKET = 93
+
+##################################################################################################
 # DIV
 ##################################################################################################
 
-FUNSCRIPT_AUTHOR = "FunGen_k00gar_AI"
+FUNSCRIPT_AUTHOR = "FunGen"
+OLD_FUNSCRIPT_AUTHOR = "FunGen_k00gar_AI"

@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from script_generator.debug.video_player.state import VideoPlayer
+from script_generator.debug.video_player.video_player import VideoPlayer
 
 
 def draw_media_controls(frame, video_player: VideoPlayer):

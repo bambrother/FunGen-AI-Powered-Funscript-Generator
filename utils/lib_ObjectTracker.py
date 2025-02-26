@@ -11,11 +11,12 @@ class LockedPenisBox:
     A class to manage the locked penis box, which represents the detected penis area.
     It stores the box coordinates, height, and active status.
     """
+
     def __init__(self):
         self.box = None  # Coordinates of the locked penis box
         self.height = 0  # Height of the locked penis box
         self.active = False  # Whether the locked penis box is active
-        self.visible = 0 # Visibility of the locked penis box 0-100
+        self.visible = 0  # Visibility of the locked penis box 0-100
         self.area = 0
 
     def update(self, new_box, new_height, visible=None):
@@ -66,6 +67,7 @@ class LockedPenisBox:
         if data["box"] is not None:
             locked_box.update(data["box"], data["height"])
         return locked_box
+
 
 class ObjectTracker:
     """
@@ -143,16 +145,16 @@ class ObjectTracker:
         if raw_distance is None:
             # Predict distance using exponential moving average (EMA)
             filtered_distance = (
-                0.1 * self.previous_distances[-3]
-                + 0.2 * self.previous_distances[-2]
-                + 0.7 * self.previous_distances[-1]
+                    0.1 * self.previous_distances[-3]
+                    + 0.2 * self.previous_distances[-2]
+                    + 0.7 * self.previous_distances[-1]
             )
         else:
             # Apply EMA to raw distance
             ema_distance = (
-                0.1 * self.previous_distances[-2]
-                + 0.2 * self.previous_distances[-1]
-                + 0.7 * raw_distance
+                    0.1 * self.previous_distances[-2]
+                    + 0.2 * self.previous_distances[-1]
+                    + 0.7 * raw_distance
             )
 
             # Limit speed of distance change
@@ -340,8 +342,6 @@ class ObjectTracker:
         if self.locked_penis_box.is_active() and self.locked_penis_box.visible < 100 and not self.glans_detected:
             self.penetration = True
 
-
-
         # Check if pussy boxes are inside butt boxes
         if 'pussy' in all_detections and 'butt' in all_detections:
             for pussy_detection in all_detections['pussy']:
@@ -359,7 +359,7 @@ class ObjectTracker:
                         # Check if the butt box is unusually large (close-up)
                         if self.isVR:
                             size_threshold = 0.15
-                        else:  #2D POV
+                        else:  # 2D POV
                             size_threshold = 0.4
 
                         if butt_box_area > size_threshold * self.image_area:
@@ -407,7 +407,7 @@ class ObjectTracker:
 
         for box, conf, cls, class_name, track_id in sorted_boxes:
             # discarding those classes for distance computation
-            #if class_name in ['glans', 'penis', 'navel', 'hips center', 'anus']:
+            # if class_name in ['glans', 'penis', 'navel', 'hips center', 'anus']:
             if class_name in ['glans', 'navel', 'hips center', 'anus']:
                 continue
             elif self.locked_penis_box.is_active() and class_name == 'breast' and not self.boxes_overlap(box, self.locked_penis_box.get_box()):
@@ -481,17 +481,17 @@ class ObjectTracker:
             # could be a blinking moment...
             # but it could be that the penis is fully inserted and the glans is not visible
             # TEST
-            #distance = 0
+            # distance = 0
             # case of lost pussy & penis tracking for instance, fallback to breast tracking
             distance = breast_tracked
             self.breast_tracking = True
             self.tracked_body_part = 'breast'
             self.detect_sex_position_change('Missionnary / Cowgirl', "breast visible while pussy is not")
             # pass
-            #self.penetration = True
-            #distance = self.locked_penis_box.visible
-            #self.detect_sex_position_change('Unknown', "no part touching penis identified")
-            #self.tracked_body_part = 'penis'
+            # self.penetration = True
+            # distance = self.locked_penis_box.visible
+            # self.detect_sex_position_change('Unknown', "no part touching penis identified")
+            # self.tracked_body_part = 'penis'
         elif 'pussy' in classes_touching_penis and not self.glans_detected:
             if self.sex_position == 'Missionnary / Cowgirl':
                 # remove hands from the weights
@@ -605,9 +605,9 @@ class ObjectTracker:
                     self.locked_penis_box.update(self.penis_box, self.penis_box[3] - self.penis_box[1])
                 if self.penetration:
                     self.penetration = False
-                    #logging.info(
+                    # logging.info(
                     #    f"@{self.current_frame_id} - Penetration ended after {self.consecutive_detections['glans']} detections of glans"
-                    #)
+                    # )
                     if self.tracked_body_part != 'Nothing':
                         self.normalized_distances[self.tracked_body_part].clear()
                         self.normalized_distances[self.tracked_body_part].append(100)
@@ -627,9 +627,9 @@ class ObjectTracker:
             self.tracked_positions[track_id] = []
         if len(self.tracked_positions[track_id]) > 2:
             mid_y = (
-                0.1 * self.tracked_positions[track_id][-2]
-                + 0.2 * self.tracked_positions[track_id][-1]
-                + 0.7 * mid_y
+                    0.1 * self.tracked_positions[track_id][-2]
+                    + 0.2 * self.tracked_positions[track_id][-1]
+                    + 0.7 * mid_y
             )
         self.tracked_positions[track_id].append(int(mid_y))
         if len(self.tracked_positions[track_id]) > 600:
@@ -657,9 +657,9 @@ class ObjectTracker:
             self.normalized_distance_to_penis[track_id] = []
         if len(self.normalized_distance_to_penis[track_id]) > 2:
             normalized_dist_to_penis_base = (
-                0.1 * self.normalized_distance_to_penis[track_id][-2]
-                + 0.2 * self.normalized_distance_to_penis[track_id][-1]
-                + 0.7 * normalized_dist_to_penis_base
+                    0.1 * self.normalized_distance_to_penis[track_id][-2]
+                    + 0.2 * self.normalized_distance_to_penis[track_id][-1]
+                    + 0.7 * normalized_dist_to_penis_base
             )
         self.normalized_distance_to_penis[track_id].append(normalized_dist_to_penis_base)
         if len(self.normalized_distance_to_penis[track_id]) > 60:

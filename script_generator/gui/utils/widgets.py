@@ -13,17 +13,17 @@ LABEL_WIDTH = 150
 
 class Widgets:
     @staticmethod
-    def frame(parent, title=None, main_section=False, min_height=0, **grid_kwargs):
+    def frame(parent, title=None, main_section=False, min_height=0, inner_padding=(0, 0), **grid_kwargs):
         if title:
             frame_cls = ttk.LabelFrame
             if main_section:
                 style = ttk.Style(parent)
                 style.configure("Bold.TLabelframe.Label", font=("TkDefaultFont", 10, "bold"))
-                frame = frame_cls(parent, text=title, style="Bold.TLabelframe")
+                frame = frame_cls(parent, text=title, style="Bold.TLabelframe", padding=inner_padding)
             else:
-                frame = frame_cls(parent, text=title)
+                frame = frame_cls(parent, text=title, padding=inner_padding)
         else:
-            frame = ttk.Frame(parent)
+            frame = ttk.Frame(parent, padding=inner_padding)
 
         grid_kwargs.setdefault("sticky", "nsew")  # Default to stretch in all directions
         grid_kwargs.setdefault("padx", 5)
@@ -436,7 +436,7 @@ class Widgets:
             text="Individual and personal use only.\nNot for commercial use.\nhttps://github.com/ack00gar",
             font=("Arial", 10, "italic", "bold"), justify="center"
         )
-        footer_label.grid(row=8, column=0, columnspan=100, padx=5, pady=5, sticky="s")
+        footer_label.grid(row=8, column=0, columnspan=100, padx=5, pady=(10, 20), sticky="s")
 
         if tooltip_text:
             Tooltip(footer_label, tooltip_text)

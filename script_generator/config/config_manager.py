@@ -7,6 +7,7 @@ from script_generator.object_detection.util.data import get_yolo_model_path
 from script_generator.video.ffmpeg.hwaccel import get_preferred_hwaccel
 from script_generator.video.util.ffmpeg import get_ffmpeg_paths
 
+
 class ConfigManager:
     def __init__(self, app_state):
         self.app_state = app_state
@@ -57,7 +58,7 @@ class ConfigManager:
         checks = [
             ("ffmpeg_path", lambda: get_ffmpeg_paths()[0], self._is_valid_path),
             ("ffprobe_path", lambda: get_ffmpeg_paths()[1], self._is_valid_path),
-            ("yolo_model_path", get_yolo_model_path, self._is_valid_path),
+            ("yolo_model_path", lambda: get_yolo_model_path() if not config["yolo_model_path"] else config["yolo_model_path"], self._is_valid_path),
             ("ffmpeg_hwaccel", lambda: get_preferred_hwaccel(config["ffmpeg_path"]) if config["ffmpeg_path"] else None, lambda val: val is not None)
         ]
 

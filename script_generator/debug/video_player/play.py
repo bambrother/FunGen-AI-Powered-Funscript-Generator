@@ -12,10 +12,11 @@ from script_generator.debug.logger import log
 from script_generator.debug.video_player.controls import draw_media_controls, draw_media_controls_static_overlay
 from script_generator.debug.video_player.debug_overlay import draw_overlay
 from script_generator.debug.video_player.interaction import mouse_callback
-from script_generator.debug.video_player.state import VideoPlayer
+from script_generator.debug.video_player.video_player import VideoPlayer
 from script_generator.funscript.util.util import load_funscript_json
 from script_generator.utils.file import get_output_file_path
 from script_generator.video.data_classes.video_info import get_cropped_dimensions
+from script_generator.debug.video_player.interaction import mouse_callback, handle_user_input
 
 
 def play_debug_video(state, start_frame=0, end_frame=None, rolling_window_size=100, save_video_mode=False):
@@ -75,13 +76,14 @@ def play_debug_video(state, start_frame=0, end_frame=None, rolling_window_size=1
         media_controls_overlay = np.array([])
 
         # Attach mouse callback for seeking
-        cv2.setMouseCallback(window_name, mouse_callback, param=video_player)
+        cv2.setMouseCallback(window_name, mouse_callback, param=(state, video_player))
 
     last_frame = video_player.current_frame
 
     def get_ceiled_fps(value):
         try:
-            return math.ceil(float(value))
+            fps = math.ceil(float(value))
+            return 60 if fps == 0 else fps
         except (ValueError, TypeError):
             return 60
 
@@ -90,11 +92,22 @@ def play_debug_video(state, start_frame=0, end_frame=None, rolling_window_size=1
         loop_start_time = time.time()
 
         # Handle user input
-        if not save_video_mode and not handle_user_input(window_name, video_player):
+        if not save_video_mode and not handle_user_input(window_name, state, video_player, metrics):
             break
 
         if video_player.current_frame >= video_player.end_frame:
             break
+
+        if state.static_debug_frame:
+            static_frame = to_int_or_fallback(state.static_debug_frame, None)
+            if static_frame:
+                new_frame = static_frame
+                if new_frame == last_frame:
+                    time.sleep(0.01)
+                    continue
+                else:
+                    video_player.current_frame = new_frame
+                    video_player.set_frame(video_player.current_frame)
 
         # Check if paused and the frame hasn't changed (allows seeking while being paused)
         if video_player.paused and video_player.current_frame == last_frame:
@@ -152,18 +165,3 @@ def play_debug_video(state, start_frame=0, end_frame=None, rolling_window_size=1
         return temp_video_path
     else:
         cv2.destroyAllWindows()
-
-
-def handle_user_input(window_name, video_player):
-    key = cv2.waitKey(1) & 0xFF
-
-    # Check if the window has been closed
-    if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) < 1:
-        return False
-
-    if key == ord("q"):
-        return False
-    elif key == ord(" "):  # Toggle pause on space bar
-        video_player.paused = not video_player.paused
-
-    return True

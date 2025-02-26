@@ -7,6 +7,7 @@ from typing import Literal, Optional, TYPE_CHECKING
 from script_generator.config.config_manager import ConfigManager
 from script_generator.debug.debug_data import DebugData, get_metrics_file_info
 from script_generator.debug.logger import log
+from script_generator.funscript.util.check_existing_funscript import check_existing_funscript
 from script_generator.object_detection.util.data import load_yolo_model, get_raw_yolo_file_info
 from script_generator.video.data_classes.video_info import VideoInfo, get_video_info
 
@@ -52,7 +53,12 @@ class AppState:
         self.live_preview_mode: bool = False
         self.reference_script: string = None
         self.max_preview_fps = 60
+        self.static_debug_frame = None
         self.debug_mode: Literal["funscript", "detection"] = "funscript"
+        self.debug_positions: bool = True
+        self.debug_tracking: bool = True
+        self.debug_regions: bool = True
+        self.debug_outliers: bool = True
 
         # Gui/settings Funscript Tweaking Variables
         self.boost_enabled: bool = True
@@ -65,7 +71,7 @@ class AppState:
         self.vw_factor: float = 8.0
         self.rounding: int = 5
 
-        # TODO move this to a analyse results class
+        # TODO remove when swtiched to tracking logic v2
         self.funscript_data = []
         self.funscript_frames = []
         self.funscript_distances = []
@@ -96,12 +102,17 @@ class AppState:
     def set_root(self, root):
         self.root = root
 
+    def load_yolo(self):
+        if self.yolo_model_path and not self.yolo_model:
+            self.yolo_model = load_yolo_model(self.yolo_model_path)
+
     def is_configured(self):
         message_prefix = "Cannot process the video."
         checks = [
             (self.video_path, f"{message_prefix} Please select a valid video file."),
             (self.ffprobe_path, f"{message_prefix} FFprobe is missing. Please provide the correct path."),
             (self.ffmpeg_path, f"{message_prefix} FFMPEG is missing. Please provide the correct path."),
+            (self.yolo_model_path, f"{message_prefix} YOLO model path not set. Please make sure to download the YOLO model to the models directory and that the path under settings is correct."),
             (self.yolo_model, f"{message_prefix} YOLO model is not loaded. Please make sure to download the YOLO model to the models directory."),
         ]
 
@@ -130,6 +141,7 @@ class AppState:
                 self.has_raw_yolo = False
                 self.has_tracking_data = False
                 self.max_preview_fps = 60
+                self.reference_script = None
             else:
                 if os.path.exists(self.video_path) and not os.path.isdir(self.video_path):
                     try:
@@ -137,6 +149,15 @@ class AppState:
                         self.has_raw_yolo, _, _ = get_raw_yolo_file_info(self)
                         self.has_tracking_data, _, _ = get_metrics_file_info(self)
                         self.max_preview_fps = math.ceil(self.video_info.fps)
+
+                        # Auto load reference script when available
+                        # TODO make a generic function
+                        video_folder = os.path.dirname(self.video_path)
+                        filename_base = os.path.splitext(os.path.basename(self.video_path))[0]
+                        ref_funscript = os.path.join(video_folder, f"{filename_base}.funscript")
+                        file_exists, is_ours, _, out_of_date = check_existing_funscript(ref_funscript, filename_base, False)
+                        if file_exists and not is_ours:
+                            self.reference_script = ref_funscript
                     except Exception as e:
                         if not self.is_cli:
                             messagebox.showerror("Error", str(e))
@@ -152,10 +173,8 @@ class AppState:
 
 
 def log_state_settings(state: AppState):
-    settings = [
-        ("Processing video", state.video_path)
-    ]
+    log.info(f"Processing video: {state.video_path}")
+    state.video_info.log_stats()
 
-    for setting_name, setting_value in settings:
-        log.info(f"{setting_name}: {setting_value}")
-
+    if state.video_info.bit_depth > 8:
+        log.info(f"Note: This video has a bit depth of {state.video_info.bit_depth}, which limits hardware acceleration and may result in processing times up to 8x slower.")

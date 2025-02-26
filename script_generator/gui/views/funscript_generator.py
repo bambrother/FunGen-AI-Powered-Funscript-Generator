@@ -39,9 +39,11 @@ class FunscriptGeneratorPage(tk.Frame):
         def update_video_path():
             state.set_video_info()
             update_ui_for_state()
-            new_label = f"VR: {state.video_info.is_vr}, Fisheye: {state.video_info.is_fisheye}, FOV {state.video_info.fov}" if state.video_info else ""
+            fov = f", FOV {state.video_info.fov}" if state.video_info and state.video_info.is_vr else ""
+            new_label = f"VR: {state.video_info.is_vr}, Fisheye: {state.video_info.is_fisheye}{fov}" if state.video_info else ""
             video_label.config(text=new_label)
             video_info_btn.show(state.video_info)
+            ref_path.set(state.reference_script if state.reference_script else "")
 
         _, fs_entry, fs_button, _ = Widgets.file_selection(
             attr="video_path",
@@ -58,7 +60,9 @@ class FunscriptGeneratorPage(tk.Frame):
 
         video_info_container = Widgets.frame(video_selection, row=1, padx=(0, 0), pady=(0, 5), min_height=35)
         video_label = Widgets.label(video_info_container, "", None, align="left", padx=(LABEL_WIDTH + 17, 0), sticky="w", row=0)
-        video_info_btn = Widgets.button(video_info_container, "Edit", command=lambda: Widgets.create_popup(title="Edit video settings", master=controller, width=350, height=120, content_builder=lambda window, user_action: render_video_edit_popup(window, state, update_video_path)), tooltip_text="Override the default detected values", visible=False, default_style=True, padx=(0, 10), column=90, row=0)
+        video_info_btn = Widgets.button(video_info_container, "Edit", command=lambda: Widgets.create_popup(
+            title="Edit video settings", master=controller, width=350, height=120, content_builder=lambda window, user_action: render_video_edit_popup(window, state, update_video_path)),
+                                        tooltip_text="Override the default detected values", visible=False, default_style=True, padx=(0, 10), column=90, row=0)
         # endregion
 
         # # region OPTIONAL SETTINGS
@@ -228,10 +232,10 @@ class FunscriptGeneratorPage(tk.Frame):
             lambda: debug_video(state),
             row=1,
             column=30,
-            tooltip_text="Opens a debug video player overlaid with debugging information (Press space to pause).\n\nThis overlay shows object detection boxes and a live funscript overlay,\namong other useful debugging information.\nCan only be triggered after the funscript generation process has completed.\nNeeds the 'Save debug information' option activated during processing."
+            tooltip_text="Opens a debug video player overlaid with debugging metrics (Press space to pause).\n\nThis overlay shows object detection boxes and a live funscript overlay,\namong other useful debugging information.\nCan only be triggered after the funscript generation process has completed.\nNeeds the 'Save debug metrics' option activated during processing."
         )
         script_compare = Widgets.frame(debugging, title="Script compare", row=1)
-        _, ref_entry, ref_button, _ = Widgets.file_selection(
+        _, ref_entry, ref_button, ref_path = Widgets.file_selection(
             attr="reference_script",
             parent=script_compare,
             label_text="Reference Script",
@@ -352,4 +356,3 @@ class FunscriptGeneratorPage(tk.Frame):
         self.state.update_ui = update_ui
         update_ui_for_state()
         # endregion
-

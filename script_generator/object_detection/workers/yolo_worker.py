@@ -35,7 +35,7 @@ class YoloWorker(AbstractTaskProcessor):
             last_frame = batch[-1]
             while len(batch) < YOLO_BATCH_SIZE:
                 batch.append(last_frame.copy())
-            
+
             self.process_batch(batch, tasks)
 
     def process_batch(self, frames, tasks):

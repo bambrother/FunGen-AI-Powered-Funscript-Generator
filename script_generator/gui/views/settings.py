@@ -59,7 +59,7 @@ class SettingsPage(tk.Frame):
             label_text="YOLO model",
             button_text="Browse",
             file_selector_title="Select YOLO model",
-            file_types=[("YOLO Model Files", "*.onnx"), ("YOLO Model Files", "*.pt"), ("CoreML Model Files", "*.mlmodel"), ("All Files", "*.*")],
+            file_types=[("YOLO Model Files", "*.onnx *.pt *.engine *.mlmodel"), ("All Files", "*.*")],
             state=self.state,
             tooltip_text="Path to the YOLO model file.",
             command=lambda val: c.save(),
@@ -121,21 +121,21 @@ class SettingsPage(tk.Frame):
             command=handle_log_level
         )
 
-        def handle_tracking_version(level):
-            self.state.tracking_logic_version = 1 if level == "Version 1" else 2
-            c.save()
-
-        Widgets.dropdown(
-            attr="tracking_logic_version",
-            parent=dev_settings,
-            label_text="Tracking version",
-            options=["Version 1", "Version 2 (DEV ONLY!)"],
-            default_value=("Version 1" if self.state.tracking_logic_version == 1 else "Version 2 (DEV ONLY!)"),
-            tooltip_text="Set tracking version. This is for development purposes only!\nTracking logic will be slowly added and implemented this will surely give you bad\nresults if you use it before it's ready. You have been warned :)",
-            state=self.state,
-            command=handle_tracking_version,
-            row=1
-        )
+        # def handle_tracking_version(level):
+        #     self.state.tracking_logic_version = 1 if level == "Version 1" else 2
+        #     c.save()
+        #
+        # Widgets.dropdown(
+        #     attr="tracking_logic_version",
+        #     parent=dev_settings,
+        #     label_text="Tracking version",
+        #     options=["Version 1", "Version 2 (DEV ONLY!)"],
+        #     default_value=("Version 1" if self.state.tracking_logic_version == 1 else "Version 2 (DEV ONLY!)"),
+        #     tooltip_text="Set tracking version. This is for development purposes only!\nTracking logic will be slowly added and implemented this will surely give you bad\nresults if you use it before it's ready. You have been warned :)",
+        #     state=self.state,
+        #     command=handle_tracking_version,
+        #     row=1
+        # )
 
         # _, _, reader_dropdown, _ = Widgets.dropdown(
         #     attr="video_reader",

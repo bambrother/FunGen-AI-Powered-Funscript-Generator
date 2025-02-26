@@ -29,7 +29,7 @@ def render_video_edit_popup(window, state: AppState, on_update):
         attr="fov",
         row=4,
         tooltip_text="The FOV of the VR video. Usually 180 but various formats can have\na different FOV. For instance MKX200 has 200 degrees.",
-        entry_width_px=100,
+        width=200,
         command=lambda val: update()
     )
 

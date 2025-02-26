@@ -85,11 +85,12 @@ def analyze_tracking_results_v1(state: AppState):
     start_time = time.time()
 
     last_ui_update_time = time.time()
+    live_preview_mode_prev = state.live_preview_mode
 
     for frame_pos in tqdm(
             # range(state.frame_start, state.frame_end), unit="f", desc="Analyzing tracking data", position=0,
-            # range(state.frame_start, state.frame_end),
-            range(state.frame_start, frame_end),
+            # range(state.frame_start_track, state.frame_end),
+            range(state.frame_start_track, frame_end),
             unit="f",
             desc="Analyzing tracking data", position=0,
             unit_scale=False,
@@ -184,7 +185,7 @@ def analyze_tracking_results_v1(state: AppState):
         if state.live_preview_mode:
             if not reader:
                 reader = VideoReaderFFmpeg(state, frame_pos)
-                reader.set(cv2.CAP_PROP_POS_FRAMES, frame_pos)
+                reader.set_frame(frame_pos)
 
             ret, frame = reader.read()
             frame = frame.copy()

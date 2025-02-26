@@ -1,8 +1,8 @@
-from script_generator.analysis.workers import analyze_tracking_results_v1, analyze_tracking_results_v2
+from script_generator.analysis.workers.analyze_tracking_results_v1 import analyze_tracking_results_v1
+from script_generator.analysis.workers.analyze_tracking_results_v2 import analyze_tracking_results_v2
 from script_generator.debug.logger import log_tr
 from script_generator.funscript.create_funscript import create_funscript
 from script_generator.object_detection.util.data import get_raw_yolo_file_info
-from script_generator.object_detection.util.object_detection import parse_yolo_data_looking_for_penis
 from script_generator.utils.data_classes.meta_data import MetaData
 
 
