@@ -22,7 +22,7 @@ def get_vr_video_filters(video, disable_opengl=False):
     # hardware accelerated output is not supported with > 8 bit
     scale = f"[0:v]scale_cuda={RENDER_RESOLUTION * 2}:-2,hwdownload" if supports_scale_cuda(state) else f"[0:v]scale={RENDER_RESOLUTION * 2}:-2"
     crop = f"crop={RENDER_RESOLUTION}:{RENDER_RESOLUTION}:0:0"
-    out_format = f"format=nv12," if cuda else ""
+    out_format = f"format=nv12" if cuda else ""
 
     if state.video_reader == "FFmpeg" or disable_opengl:
         cpu_filters = [
@@ -50,7 +50,7 @@ def get_vr_video_filters(video, disable_opengl=False):
             f"{out_format}lutyuv=y=gammaval(0.7)"
         ]
 
-    return f"{','.join(filters)}"
+    return f"{','.join(filter for filter in filters if filter)}"
 
 
 def get_2d_video_filters(video, width, height):

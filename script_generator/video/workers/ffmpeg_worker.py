@@ -15,6 +15,7 @@ class VideoWorker(AbstractTaskProcessor):
     read_frames = True
 
     def task_logic(self):
+        self.process_pre = None
         self.process = None
         self.read_frames = True
 
@@ -63,7 +64,7 @@ class VideoWorker(AbstractTaskProcessor):
                 current_frame += 1
 
                 # For the ffmpeg pipe we need to detect the last frame and close manually
-                if current_frame >= self.state.video_info.total_frames:
+                if current_frame >= self.state.video_info.total_frames - 1:
                     log_vid.info("FFMPEG received last frame")
                     break
 
@@ -75,6 +76,7 @@ class VideoWorker(AbstractTaskProcessor):
 
         finally:
             self.stop_process()
+            self.output_queue.put(None)
             self.release()
 
     def release(self):
